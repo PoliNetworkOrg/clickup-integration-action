@@ -86,7 +86,7 @@ export async function handleIssueCreation() {
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      body: messages.problem_created.join("\n\n") + "\n\n" + taskMessage(task),
+      body: `${messages.problem_created.join("\n\n")}\n\n${taskMessage(task)}`,
     })
     if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
   } else if (isFeature) {
@@ -97,7 +97,7 @@ export async function handleIssueCreation() {
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      body: messages.feature_created.join("\n\n") + "\n\n" + taskMessage(task),
+      body: `${messages.feature_created.join("\n\n")}\n\n${taskMessage(task)}`,
     })
     if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
   }

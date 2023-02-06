@@ -16,8 +16,6 @@ export declare module ClickUp {
     profilePicture: string
   }
 
-  export interface TypeConfig {}
-
   export interface Value {
     value: string
   }
@@ -26,7 +24,7 @@ export declare module ClickUp {
     id: string
     name: string
     type: string
-    type_config: TypeConfig
+    type_config: any
     date_created: string
     hide_from_guests: boolean
     value: Value
@@ -60,7 +58,7 @@ export declare module ClickUp {
     creator: Creator
     assignees: any[]
     checklists: any[]
-    tags: any[]
+    tags: string[]
     parent: string
     priority?: any
     due_date?: any
@@ -107,7 +105,9 @@ export async function linkIssueInTaskComment(
       const body = await response.text()
       console.log(`Failed to create comment: ${body}`)
     }
-  } catch (e) {}
+  } catch (e) {
+    console.log(`Failed to create comment: ${e}`)
+  }
 }
 
 async function createTask(
