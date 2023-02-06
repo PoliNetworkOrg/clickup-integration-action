@@ -7,7 +7,7 @@ inputs:
     description: 'ClickUp API key'
     required: true
 
-  problem_foledr_id:
+  problem_folder_id:
     description: 'ClickUp folder ID for the problem issues'
     required: true
 
