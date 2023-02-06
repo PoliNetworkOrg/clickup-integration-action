@@ -21,4 +21,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          milliseconds: 1000
+          clickup_api_key: test
+          problem_folder_id: 210431256
+          feature_folder_id: 900400324463

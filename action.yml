@@ -1,11 +1,20 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'ClickUp Issue Integration for Polifemo'
+description: 'Automates the creation of ClickUp tasks from GitHub issues for the Polifemo project'
+author: 'Tommaso Morganti'
+
 inputs:
-  milliseconds: # change this
+  clickup_api_key:
+    description: 'ClickUp API key'
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+
+  problem_foledr_id:
+    description: 'ClickUp folder ID for the problem issues'
+    required: true
+
+  feature_folder_id:
+    description: 'ClickUp folder ID for the feature issues'
+    required: true
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
