@@ -81,24 +81,30 @@ export async function handleIssueCreation() {
   if (isProblem) {
     // create a task in ClickUp
     const task = await createProblem(issue.title, issue.body, clickupTagsList)
+    if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
     // comment with task link
-    await ocktokit.issues.createComment({
+    const res = await ocktokit.issues.createComment({
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       body: `${messages.problem_created.join("\n\n")}\n\n${taskMessage(task)}`,
     })
-    if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
+    core.debug(
+      `Response while commenting on issue: ${JSON.stringify(res.data)}`
+    )
   } else if (isFeature) {
     // create a task in ClickUp
     const task = await createProblem(issue.title, issue.body, clickupTagsList)
+    if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
     // comment with task link
-    await ocktokit.issues.createComment({
+    const res = await ocktokit.issues.createComment({
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
       body: `${messages.feature_created.join("\n\n")}\n\n${taskMessage(task)}`,
     })
-    if (issue.html_url) linkIssueInTaskComment(task.id, issue.html_url)
+    core.debug(
+      `Response while commenting on issue: ${JSON.stringify(res.data)}`
+    )
   }
 }

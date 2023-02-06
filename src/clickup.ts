@@ -84,7 +84,7 @@ export async function linkIssueInTaskComment(
   task_id: string
 ) {
   try {
-    const clickupToken = core.getInput("clickup_api_key")
+    const clickupApiKey = core.getInput("clickup_api_key")
 
     console.log("Creating comment on task")
     const response = await fetch(
@@ -93,7 +93,7 @@ export async function linkIssueInTaskComment(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: clickupToken,
+          Authorization: clickupApiKey,
         },
         body: JSON.stringify({
           text: `Linked to GitHub issue: ${issue_url}`,

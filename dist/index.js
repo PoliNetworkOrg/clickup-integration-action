@@ -48,13 +48,13 @@ const node_fetch_1 = __importDefault(__nccwpck_require__(6882));
 function linkIssueInTaskComment(issue_url, task_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const clickupToken = core.getInput("clickup_api_key");
+            const clickupApiKey = core.getInput("clickup_api_key");
             console.log("Creating comment on task");
             const response = yield (0, node_fetch_1.default)(`https://api.clickup.com/api/v2/task/${task_id}/comment`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: clickupToken,
+                    Authorization: clickupApiKey,
                 },
                 body: JSON.stringify({
                     text: `Linked to GitHub issue: ${issue_url}`,
@@ -209,28 +209,30 @@ function handleIssueCreation() {
         if (isProblem) {
             // create a task in ClickUp
             const task = yield (0, clickup_1.createProblem)(issue.title, issue.body, clickupTagsList);
+            if (issue.html_url)
+                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
             // comment with task link
-            yield ocktokit.issues.createComment({
+            const res = yield ocktokit.issues.createComment({
                 issue_number: issue.number,
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 body: `${messages.problem_created.join("\n\n")}\n\n${taskMessage(task)}`,
             });
-            if (issue.html_url)
-                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
+            core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
         }
         else if (isFeature) {
             // create a task in ClickUp
             const task = yield (0, clickup_1.createProblem)(issue.title, issue.body, clickupTagsList);
+            if (issue.html_url)
+                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
             // comment with task link
-            yield ocktokit.issues.createComment({
+            const res = yield ocktokit.issues.createComment({
                 issue_number: issue.number,
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
                 body: `${messages.feature_created.join("\n\n")}\n\n${taskMessage(task)}`,
             });
-            if (issue.html_url)
-                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
+            core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
         }
     });
 }
