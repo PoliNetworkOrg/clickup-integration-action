@@ -3,16 +3,21 @@ description: 'Automates the creation of ClickUp tasks from GitHub issues for the
 author: 'Tommaso Morganti'
 
 inputs:
+  github_token:
+    description: 'GitHub token'
+    default: ${{ github.token }
+    required: false
+
   clickup_api_key:
     description: 'ClickUp API key'
     required: true
 
-  problem_folder_id:
-    description: 'ClickUp folder ID for the problem issues'
+  problem_list_id:
+    description: 'ClickUp list ID for the problem issues'
     required: true
 
-  feature_folder_id:
-    description: 'ClickUp folder ID for the feature issues'
+  feature_list_id:
+    description: 'ClickUp list ID for the feature issues'
     required: true
 
 runs:
