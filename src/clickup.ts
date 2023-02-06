@@ -93,7 +93,7 @@ export async function linkIssueInTaskComment(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${clickupToken}`,
+          Authorization: clickupToken,
         },
         body: JSON.stringify({
           text: `Linked to GitHub issue: ${issue_url}`,
@@ -102,7 +102,7 @@ export async function linkIssueInTaskComment(
     )
 
     const data = await response.json()
-    console.log(`Response body: ${JSON.stringify(data)}\n`)
+    core.debug(`Response body: ${JSON.stringify(data)}\n`)
     return data as ClickUp.Comment
   } catch (e) {
     console.log(`Failed to create comment: ${e}`)
@@ -128,7 +128,7 @@ async function createTask(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${clickupToken}`,
+        Authorization: clickupToken,
       },
       body: JSON.stringify({
         name,

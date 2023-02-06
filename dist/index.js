@@ -54,14 +54,14 @@ function linkIssueInTaskComment(issue_url, task_id) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${clickupToken}`,
+                    Authorization: clickupToken,
                 },
                 body: JSON.stringify({
                     text: `Linked to GitHub issue: ${issue_url}`,
                 }),
             });
             const data = yield response.json();
-            console.log(`Response body: ${JSON.stringify(data)}\n`);
+            core.debug(`Response body: ${JSON.stringify(data)}\n`);
             return data;
         }
         catch (e) {
@@ -81,7 +81,7 @@ function createTask(listId, name, body, tags) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${clickupToken}`,
+                Authorization: clickupToken,
             },
             body: JSON.stringify({
                 name,
