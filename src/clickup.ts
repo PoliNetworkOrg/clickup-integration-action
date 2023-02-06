@@ -119,8 +119,7 @@ async function createTask(
 
   console.log(`Creating task in list ${listId}`)
   core.debug(`Name: ${name}`)
-  core.debug(`Body: ${body}`)
-  core.debug(`Tags: ${tags?.join(", ")}`)
+  core.debug(`Tags: ${JSON.stringify(tags)}`)
 
   const response = await fetch(
     `https://api.clickup.com/api/v2/list/${listId}/task`,

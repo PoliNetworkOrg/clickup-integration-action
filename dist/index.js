@@ -75,8 +75,7 @@ function createTask(listId, name, body, tags) {
         const clickupToken = core.getInput("clickup_api_key");
         console.log(`Creating task in list ${listId}`);
         core.debug(`Name: ${name}`);
-        core.debug(`Body: ${body}`);
-        core.debug(`Tags: ${tags === null || tags === void 0 ? void 0 : tags.join(", ")}`);
+        core.debug(`Tags: ${JSON.stringify(tags)}`);
         const response = yield (0, node_fetch_1.default)(`https://api.clickup.com/api/v2/list/${listId}/task`, {
             method: "POST",
             headers: {
@@ -285,8 +284,11 @@ const issues_1 = __nccwpck_require__(6962);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            core.debug(`Problem list ID: ${core.getInput("problem_list_id")}`);
+            core.debug(`Feature list ID: ${core.getInput("feature_list_id")}`);
             const { context } = github;
             const { payload, eventName } = context;
+            core.debug(`Event name: ${github.context.eventName}`);
             // if its an issue being opened
             if (eventName === "issues" && payload.action === "opened") {
                 console.log("Handling issue creation");
