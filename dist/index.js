@@ -60,10 +60,9 @@ function linkIssueInTaskComment(issue_url, task_id) {
                     text: `Linked to GitHub issue: ${issue_url}`,
                 }),
             });
-            if (!response.ok) {
-                const body = yield response.text();
-                console.log(`Failed to create comment: ${body}`);
-            }
+            const data = yield response.json();
+            console.log(`Response body: ${JSON.stringify(data)}\n`);
+            return data;
         }
         catch (e) {
             console.log(`Failed to create comment: ${e}`);
@@ -91,7 +90,9 @@ function createTask(listId, name, body, tags) {
                 tags,
             }),
         });
+        core.debug(`Response: ${response.status} ${response.statusText}`);
         const data = yield response.json();
+        core.debug(`Response body: ${JSON.stringify(data)}\n`);
         return data;
     });
 }

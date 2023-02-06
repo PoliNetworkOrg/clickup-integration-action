@@ -101,10 +101,9 @@ export async function linkIssueInTaskComment(
       }
     )
 
-    if (!response.ok) {
-      const body = await response.text()
-      console.log(`Failed to create comment: ${body}`)
-    }
+    const data = await response.json()
+    console.log(`Response body: ${JSON.stringify(data)}\n`)
+    return data as ClickUp.Comment
   } catch (e) {
     console.log(`Failed to create comment: ${e}`)
   }
@@ -140,7 +139,9 @@ async function createTask(
     }
   )
 
+  core.debug(`Response: ${response.status} ${response.statusText}`)
   const data = await response.json()
+  core.debug(`Response body: ${JSON.stringify(data)}\n`)
   return data as ClickUp.Task
 }
 
