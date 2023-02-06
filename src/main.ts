@@ -18,6 +18,7 @@ async function run(): Promise<void> {
     console.log(`The ref is ${github.context.ref}.`)
     console.log(`The workflow is ${github.context.workflow}.`)
     console.log(`The action is ${github.context.action}.`)
+    console.log(`Full context: ${JSON.stringify(github.context)}`)
 
     core.setOutput('clickup_api_key', clickupToken)
   } catch (error) {
