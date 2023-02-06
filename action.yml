@@ -1,25 +1,25 @@
-name: 'ClickUp Issue Integration for Polifemo'
-description: 'Automates the creation of ClickUp tasks from GitHub issues for the Polifemo project'
-author: 'Tommaso Morganti'
+name: "ClickUp Issue Integration for Polifemo"
+description: "Automates the creation of ClickUp tasks from GitHub issues for the Polifemo project"
+author: "Tommaso Morganti"
 
 inputs:
   github_token:
-    description: 'GitHub token'
-    default: ${{ github.token }
+    description: "GitHub token"
+    default: ${{ github.token }}
     required: false
 
   clickup_api_key:
-    description: 'ClickUp API key'
+    description: "ClickUp API key"
     required: true
 
   problem_list_id:
-    description: 'ClickUp list ID for the problem issues'
+    description: "ClickUp list ID for the problem issues"
     required: true
 
   feature_list_id:
-    description: 'ClickUp list ID for the feature issues'
+    description: "ClickUp list ID for the feature issues"
     required: true
 
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"
