@@ -57,7 +57,7 @@ function linkIssueInTaskComment(issue_url, task_id) {
                     Authorization: clickupApiKey,
                 },
                 body: JSON.stringify({
-                    text: `Linked to GitHub issue: ${issue_url}`,
+                    comment_text: `Linked to GitHub issue: ${issue_url}`,
                 }),
             });
             const data = yield response.json();
@@ -151,7 +151,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.handleIssueCreation = void 0;
+exports.handleIssueCreation = exports.handleFeatureCreation = exports.handleProblemCreation = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const clickup_1 = __nccwpck_require__(1305);
@@ -159,15 +159,15 @@ const problemTagNames = ["type: bug", "type: chore", "type: security"];
 const featureTagNames = ["type: suggestion"];
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
 const messages = {
-    missing_label: [
+    missingLabel: [
         "Grazie per aver aperto questa issue. Per aiutarci a capire meglio il tuo problema, aggiungi una label indicante il tipo di problema (e.g `type: bug`).",
         "Thank you for opening this issue. To help us better understand your issue, please add a label indicating the type of problem (e.g `type: bug`).",
     ],
-    problem_created: [
+    problemCreated: [
         "Grazie per la tua segnalazione, il nostro team ti darà un feedback al più presto.",
         "Thank you for your report, our team will get back to you as soon as possible.",
     ],
-    feature_created: [
+    featureCreated: [
         "Grazie per il tuo suggerimento, le tue indicazioni verranno prese in cosiderazione e valutate dal nostro team!",
         "Thank you for your suggestion, your feedback will be taken into consideration and evaluated by our team!",
     ],
@@ -175,6 +175,42 @@ const messages = {
 function taskMessage(task) {
     return `Created a ClickUp task linked to this issue: [CU-${task.id}](${task.url})`;
 }
+function handleProblemCreation(issue, clickupTagsList) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        // create a task in ClickUp
+        const task = yield (0, clickup_1.createProblem)((_a = issue.title) !== null && _a !== void 0 ? _a : `Issue #${issue.number}`, issue.body, clickupTagsList);
+        if (issue.html_url)
+            (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
+        // comment with task link
+        const res = yield ocktokit.issues.createComment({
+            issue_number: issue.number,
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            body: `${messages.problemCreated.join("\n\n")}\n----\n${taskMessage(task)}`,
+        });
+        core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
+    });
+}
+exports.handleProblemCreation = handleProblemCreation;
+function handleFeatureCreation(issue, clickupTagsList) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        // create a task in ClickUp
+        const task = yield (0, clickup_1.createFeatureRequest)((_a = issue.title) !== null && _a !== void 0 ? _a : `Issue #${issue.number}`, issue.body, clickupTagsList);
+        if (issue.html_url)
+            (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
+        // comment with task link
+        const res = yield ocktokit.issues.createComment({
+            issue_number: issue.number,
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            body: `${messages.featureCreated.join("\n\n")}\n\n${taskMessage(task)}`,
+        });
+        core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
+    });
+}
+exports.handleFeatureCreation = handleFeatureCreation;
 function handleIssueCreation() {
     return __awaiter(this, void 0, void 0, function* () {
         // check if the issue has the label
@@ -191,12 +227,14 @@ function handleIssueCreation() {
         // filter for labels that start with 'type: '
         const typeLabels = labels.filter(label => label.name.startsWith("type"));
         if (typeLabels.length === 0) {
-            yield ocktokit.issues.createComment({
+            console.log("No type label found, commenting...");
+            const res = yield ocktokit.issues.createComment({
                 issue_number: issue.number,
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
-                body: messages.missing_label.join("\n\n"),
+                body: messages.missingLabel.join("\n\n"),
             });
+            core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
             return;
         }
         const clickupTagsList = labels
@@ -205,34 +243,10 @@ function handleIssueCreation() {
         // check if it's a problem or a feature
         const isProblem = typeLabels.some(label => problemTagNames.includes(label.name));
         const isFeature = typeLabels.some(label => featureTagNames.includes(label.name));
-        if (isProblem) {
-            // create a task in ClickUp
-            const task = yield (0, clickup_1.createProblem)(issue.title, issue.body, clickupTagsList);
-            if (issue.html_url)
-                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
-            // comment with task link
-            const res = yield ocktokit.issues.createComment({
-                issue_number: issue.number,
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                body: `${messages.problem_created.join("\n\n")}\n\n${taskMessage(task)}`,
-            });
-            core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
-        }
-        else if (isFeature) {
-            // create a task in ClickUp
-            const task = yield (0, clickup_1.createProblem)(issue.title, issue.body, clickupTagsList);
-            if (issue.html_url)
-                (0, clickup_1.linkIssueInTaskComment)(task.id, issue.html_url);
-            // comment with task link
-            const res = yield ocktokit.issues.createComment({
-                issue_number: issue.number,
-                owner: github.context.repo.owner,
-                repo: github.context.repo.repo,
-                body: `${messages.feature_created.join("\n\n")}\n\n${taskMessage(task)}`,
-            });
-            core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
-        }
+        if (isProblem)
+            handleProblemCreation(issue, clickupTagsList);
+        else if (isFeature)
+            handleFeatureCreation(issue, clickupTagsList);
     });
 }
 exports.handleIssueCreation = handleIssueCreation;

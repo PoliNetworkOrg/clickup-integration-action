@@ -96,7 +96,7 @@ export async function linkIssueInTaskComment(
           Authorization: clickupApiKey,
         },
         body: JSON.stringify({
-          text: `Linked to GitHub issue: ${issue_url}`,
+          comment_text: `Linked to GitHub issue: ${issue_url}`,
         }),
       }
     )
