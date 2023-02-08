@@ -101,6 +101,13 @@ export async function linkIssueInTaskComment(
       }
     )
 
+    if (!response.ok) {
+      console.log(`Failed to create comment: ${response.status}`)
+      core.debug(`Response: ${response.status} ${response.statusText}`)
+      core.debug(`Response body: ${await response.text()}\n`)
+      return
+    }
+
     const data = await response.json()
     core.debug(`Response body: ${JSON.stringify(data)}\n`)
     return data as ClickUp.Comment

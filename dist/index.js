@@ -60,6 +60,12 @@ function linkIssueInTaskComment(issue_url, task_id) {
                     comment_text: `Linked to GitHub issue: ${issue_url}`,
                 }),
             });
+            if (!response.ok) {
+                console.log(`Failed to create comment: ${response.status}`);
+                core.debug(`Response: ${response.status} ${response.statusText}`);
+                core.debug(`Response body: ${yield response.text()}\n`);
+                return;
+            }
             const data = yield response.json();
             core.debug(`Response body: ${JSON.stringify(data)}\n`);
             return data;
@@ -254,6 +260,100 @@ exports.handleIssueCreation = handleIssueCreation;
 
 /***/ }),
 
+/***/ 3579:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.handleLabeled = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
+function handleLabeled() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // check if the issue has the label
+        const issue = github.context.payload.issue;
+        if (!issue) {
+            core.setFailed("No issue found");
+            return;
+        }
+        if (issue.closed_at) {
+            console.log("Issue is closed, skipping...");
+            return;
+        }
+        const labels = issue.labels;
+        if (!labels) {
+            core.setFailed("Labels is undefined");
+            return;
+        }
+        // check if there is already a comment with a task link
+        const { data: comments } = yield ocktokit.issues.listComments({
+            issue_number: issue.number,
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+        });
+        // extract the task id from the comment
+        const taskID = comments
+            .map(comment => comment.body)
+            .filter(b => b !== undefined)
+            .map(b => b === null || b === void 0 ? void 0 : b.match(/CU-([a-z0-9]+)/i))
+            .filter(m => m)
+            .map(m => m === null || m === void 0 ? void 0 : m[1])
+            .filter(id => id)[0];
+        const taskExists = taskID !== undefined;
+        console.log(`Task exists: ${taskExists}, taskID: ${taskID}`);
+        if (taskExists) {
+            console.log("Task already exists, syncing labels...");
+            // sync the labels with the task
+            // update the task with the new labels
+            return;
+        }
+        else {
+            core.debug("Task does not exist, creating a new one...");
+            // create a task in ClickUp
+            // comment with task link
+            return;
+        }
+    });
+}
+exports.handleLabeled = handleLabeled;
+
+
+/***/ }),
+
 /***/ 3109:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -295,6 +395,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const issues_1 = __nccwpck_require__(6962);
+const labels_1 = __nccwpck_require__(3579);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -304,9 +405,15 @@ function run() {
             const { payload, eventName } = context;
             core.debug(`Event name: ${github.context.eventName}`);
             // if its an issue being opened
-            if (eventName === "issues" && payload.action === "opened") {
-                console.log("Handling issue creation");
-                yield (0, issues_1.handleIssueCreation)();
+            if (eventName === "issues") {
+                if (payload.action === "opened") {
+                    console.log("Handling issue creation");
+                    yield (0, issues_1.handleIssueCreation)();
+                }
+                else if (payload.action === "labeled") {
+                    console.log("Handling label addition");
+                    yield (0, labels_1.handleLabeled)();
+                }
             }
         }
         catch (error) {

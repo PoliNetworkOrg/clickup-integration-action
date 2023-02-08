@@ -31,7 +31,7 @@ function taskMessage(task: ClickUp.Task) {
   return `Created a ClickUp task linked to this issue: [CU-${task.id}](${task.url})`
 }
 
-interface Label {
+export interface Label {
   color: string
   default: boolean
   description: string
