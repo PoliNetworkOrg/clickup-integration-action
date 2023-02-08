@@ -80,8 +80,8 @@ export declare module ClickUp {
 }
 
 export async function linkIssueInTaskComment(
-  issue_url: string,
-  task_id: string
+  task_id: string,
+  issue_url: string
 ) {
   try {
     const clickupApiKey = core.getInput("clickup_api_key")

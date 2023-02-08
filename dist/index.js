@@ -45,7 +45,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createFeatureRequest = exports.createProblem = exports.linkIssueInTaskComment = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const node_fetch_1 = __importDefault(__nccwpck_require__(6882));
-function linkIssueInTaskComment(issue_url, task_id) {
+function linkIssueInTaskComment(task_id, issue_url) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const clickupApiKey = core.getInput("clickup_api_key");
