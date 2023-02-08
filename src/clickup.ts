@@ -79,6 +79,37 @@ export declare module ClickUp {
   }
 }
 
+export async function addTag(task_id: string, tag_name: string) {
+  try {
+    const clickupApiKey = core.getInput("clickup_api_key")
+
+    console.log(`Adding tag ${tag_name} to task ${task_id}`)
+    const response = await fetch(
+      `https://api.clickup.com/api/v2/task/${task_id}/tag/${tag_name}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: clickupApiKey,
+        },
+      }
+    )
+
+    if (!response.ok) {
+      console.log(`Failed to add tag: ${response.status}`)
+      core.debug(`Response: ${response.status} ${response.statusText}`)
+      core.debug(`Response body: ${await response.text()}\n`)
+      return
+    }
+
+    const data = await response.json()
+    core.debug(`Response body: ${JSON.stringify(data)}\n`)
+    return data as ClickUp.Task
+  } catch (e) {
+    console.log(`Failed to add tag: ${e}`)
+  }
+}
+
 export async function linkIssueInTaskComment(
   task_id: string,
   issue_url: string
