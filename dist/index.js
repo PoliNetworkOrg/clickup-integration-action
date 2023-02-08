@@ -305,6 +305,8 @@ const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
 function handleLabeled() {
     return __awaiter(this, void 0, void 0, function* () {
         // check if the issue has the label
+        console.log("the whole context:");
+        console.log(github.context);
         const issue = github.context.payload.issue;
         if (!issue) {
             core.setFailed("No issue found");
