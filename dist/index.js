@@ -488,7 +488,7 @@ const template_names = (/* unused pure expression or super */ null && ([
 ]));
 function template(template_name, data) {
     return __awaiter(this, void 0, void 0, function* () {
-        const tmp = yield promises_1.default.readFile(`./templates/${template_name}.md`, "utf8");
+        const tmp = yield promises_1.default.readFile(`./dist/templates/${template_name}.md`, "utf8");
         return (0, mustache_1.render)(tmp, data);
     });
 }

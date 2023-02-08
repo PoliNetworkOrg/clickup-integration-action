@@ -11,6 +11,6 @@ export async function template(
   template_name: typeof template_names[number],
   data?: any
 ) {
-  const tmp = await fs.readFile(`./templates/${template_name}.md`, "utf8")
+  const tmp = await fs.readFile(`./dist/templates/${template_name}.md`, "utf8")
   return render(tmp, data)
 }
