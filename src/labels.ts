@@ -2,31 +2,16 @@ import * as core from "@actions/core"
 import * as github from "@actions/github"
 import {
   addTag,
-  ClickUp,
   createFeatureRequest,
   createProblem,
   linkIssueInTaskComment,
 } from "./clickup"
+import { template } from "./template"
 
 const problemTagNames = ["type: bug", "type: chore", "type: security"]
 const featureTagNames = ["type: suggestion"]
 
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest
-
-export const messages: Record<string, [string, string]> = {
-  missingLabel: [
-    "Grazie per aver aperto questa issue. Per aiutarci a capire meglio il tuo problema, aggiungi una label indicante il tipo di problema (e.g `type: bug`).",
-    "Thank you for opening this issue. To help us better understand your issue, please add a label indicating the type of problem (e.g `type: bug`).",
-  ],
-  problemCreated: [
-    "Grazie per la tua segnalazione, il nostro team ti darà un feedback al più presto.",
-    "Thank you for your report, our team will get back to you as soon as possible.",
-  ],
-  featureCreated: [
-    "Grazie per il tuo suggerimento, le tue indicazioni verranno prese in cosiderazione e valutate dal nostro team!",
-    "Thank you for your suggestion, your feedback will be taken into consideration and evaluated by our team!",
-  ],
-}
 
 export function isTypeLabel(label: string) {
   return label.startsWith("type:")
@@ -44,10 +29,6 @@ export interface Label {
   name: string
   node_id: string
   url: string
-}
-
-function taskMessage(task: ClickUp.Task) {
-  return `Created a ClickUp task linked to this issue: [CU-${task.id}](${task.url})`
 }
 
 export interface Issue {
@@ -73,7 +54,7 @@ export async function handleProblemCreation(
     issue_number: issue.number,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    body: `${messages.problemCreated.join("\n\n")}\n----\n${taskMessage(task)}`,
+    body: await template("problem_created", task),
   })
   core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`)
 }
@@ -94,7 +75,7 @@ export async function handleFeatureCreation(
     issue_number: issue.number,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    body: `${messages.featureCreated.join("\n\n")}\n----\n${taskMessage(task)}`,
+    body: await template("feature_created", task),
   })
   core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`)
 }

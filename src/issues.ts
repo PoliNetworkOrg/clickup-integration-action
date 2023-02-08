@@ -1,6 +1,7 @@
 import * as core from "@actions/core"
 import * as github from "@actions/github"
-import { isTypeLabel, Label, messages } from "./labels"
+import { isTypeLabel, Label } from "./labels"
+import { template } from "./template"
 
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest
 
@@ -27,7 +28,7 @@ export async function handleIssueCreation() {
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      body: messages.missingLabel.join("\n\n"),
+      body: await template("missing_labels"),
     })
     core.debug(
       `Response while commenting on issue: ${JSON.stringify(res.data)}`
