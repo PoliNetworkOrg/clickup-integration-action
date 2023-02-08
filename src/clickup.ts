@@ -86,7 +86,7 @@ export async function linkIssueInTaskComment(
   try {
     const clickupApiKey = core.getInput("clickup_api_key")
 
-    console.log("Creating comment on task")
+    console.log(`Creating comment in task ${task_id}`)
     const response = await fetch(
       `https://api.clickup.com/api/v2/task/${task_id}/comment`,
       {

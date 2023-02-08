@@ -49,7 +49,7 @@ function linkIssueInTaskComment(issue_url, task_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const clickupApiKey = core.getInput("clickup_api_key");
-            console.log("Creating comment on task");
+            console.log(`Creating comment in task ${task_id}`);
             const response = yield (0, node_fetch_1.default)(`https://api.clickup.com/api/v2/task/${task_id}/comment`, {
                 method: "POST",
                 headers: {
