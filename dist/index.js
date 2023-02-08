@@ -212,7 +212,7 @@ function handleIssueCreation() {
                 issue_number: issue.number,
                 owner: github.context.repo.owner,
                 repo: github.context.repo.repo,
-                body: yield (0, template_1.template)("missing_labels"),
+                body: (0, template_1.template)("missing_labels"),
             });
             core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
             return;
@@ -290,7 +290,7 @@ function handleProblemCreation(issue, clickupTagsList) {
             issue_number: issue.number,
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            body: yield (0, template_1.template)("problem_created", task),
+            body: (0, template_1.template)("problem_created", task),
         });
         core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
     });
@@ -308,7 +308,7 @@ function handleFeatureCreation(issue, clickupTagsList) {
             issue_number: issue.number,
             owner: github.context.repo.owner,
             repo: github.context.repo.repo,
-            body: yield (0, template_1.template)("feature_created", task),
+            body: (0, template_1.template)("feature_created", task),
         });
         core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`);
     });
@@ -461,36 +461,48 @@ run();
 /***/ }),
 
 /***/ 5032:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.template = void 0;
-const promises_1 = __importDefault(__nccwpck_require__(9225));
 const mustache_1 = __nccwpck_require__(8272);
-const template_names = (/* unused pure expression or super */ null && ([
-    "feature_created",
-    "missing_labels",
-    "problem_created",
-]));
+const templates = {
+    feature_created: `
+### Grazie per il tuo suggerimento
+Le tue indicazioni verranno prese in cosiderazione e valutate dal nostro team!
+
+### Thank you for your report
+Our team will get back to you as soon as possible.
+
+---
+
+Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
+`,
+    missing_labels: `
+### Grazie per aver aperto questa issue
+Per aiutarci a capire meglio il tuo problema, **aggiungi una label indicante il
+tipo di problema** (e.g \`type: bug\`).
+
+### Thank you for opening this issue
+To help us better understand your issue, **please add a label indicating the
+type of problem** (e.g \`type: bug\`).
+  `,
+    problem_created: `
+### Grazie per la tua segnalazione
+Il nostro team ti darà un feedback al più presto.
+
+### Thank you for your suggestion
+Your feedback will be taken into consideration and evaluated by our team!
+
+---
+
+Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
+`,
+};
 function template(template_name, data) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const tmp = yield promises_1.default.readFile(`./dist/templates/${template_name}.md`, "utf8");
-        return (0, mustache_1.render)(tmp, data);
-    });
+    return (0, mustache_1.render)(templates[template_name], data);
 }
 exports.template = template;
 
@@ -17913,14 +17925,6 @@ module.exports = require("events");
 
 "use strict";
 module.exports = require("fs");
-
-/***/ }),
-
-/***/ 9225:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("fs/promises");
 
 /***/ }),
 

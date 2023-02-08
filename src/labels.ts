@@ -54,7 +54,7 @@ export async function handleProblemCreation(
     issue_number: issue.number,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    body: await template("problem_created", task),
+    body: template("problem_created", task),
   })
   core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`)
 }
@@ -75,7 +75,7 @@ export async function handleFeatureCreation(
     issue_number: issue.number,
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
-    body: await template("feature_created", task),
+    body: template("feature_created", task),
   })
   core.debug(`Response while commenting on issue: ${JSON.stringify(res.data)}`)
 }

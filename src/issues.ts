@@ -28,7 +28,7 @@ export async function handleIssueCreation() {
       issue_number: issue.number,
       owner: github.context.repo.owner,
       repo: github.context.repo.repo,
-      body: await template("missing_labels"),
+      body: template("missing_labels"),
     })
     core.debug(
       `Response while commenting on issue: ${JSON.stringify(res.data)}`
