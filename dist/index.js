@@ -405,7 +405,7 @@ function handleLabeled() {
         if (taskExists && labelIsSyncable) {
             // add the label to the task
             console.log("Adding label to task");
-            (0, clickup_1.addTag)(taskID, label.name);
+            (0, clickup_1.addTag)(taskID, label.name.toLowerCase());
             return;
         }
         if (!taskExists && labelIsType) {
@@ -421,9 +421,13 @@ function handleLabeled() {
             const isProblem = typeLabels.some(l => problemTagNames.includes(l.name));
             const isFeature = typeLabels.some(l => featureTagNames.includes(l.name));
             if (isProblem)
-                handleProblemCreation(issue, labels.filter(l => isSyncableLabel(l.name)).map(l => l.name));
+                handleProblemCreation(issue, labels
+                    .filter(l => isSyncableLabel(l.name))
+                    .map(l => l.name.toLowerCase()));
             else if (isFeature)
-                handleFeatureCreation(issue, labels.filter(l => isSyncableLabel(l.name)).map(l => l.name));
+                handleFeatureCreation(issue, labels
+                    .filter(l => isSyncableLabel(l.name))
+                    .map(l => l.name.toLowerCase()));
             return;
         }
     });

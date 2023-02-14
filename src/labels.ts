@@ -129,7 +129,7 @@ export async function handleLabeled() {
   if (taskExists && labelIsSyncable) {
     // add the label to the task
     console.log("Adding label to task")
-    addTag(taskID, label.name)
+    addTag(taskID, label.name.toLowerCase())
     return
   }
 
@@ -150,12 +150,16 @@ export async function handleLabeled() {
     if (isProblem)
       handleProblemCreation(
         issue,
-        labels.filter(l => isSyncableLabel(l.name)).map(l => l.name)
+        labels
+          .filter(l => isSyncableLabel(l.name))
+          .map(l => l.name.toLowerCase())
       )
     else if (isFeature)
       handleFeatureCreation(
         issue,
-        labels.filter(l => isSyncableLabel(l.name)).map(l => l.name)
+        labels
+          .filter(l => isSyncableLabel(l.name))
+          .map(l => l.name.toLowerCase())
       )
 
     return
