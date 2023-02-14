@@ -40,6 +40,7 @@ export async function handlePRs() {
   // update the task status
   console.log(`Updating task status to: ${newStatus}`)
   const task = await updateTaskStatus(taskID, newStatus)
+  task.status.color = task.status.color.replace("#", "") // remove the # from the color, for templating
   core.debug(`Response while updating task: ${JSON.stringify(task)}`)
 
   // add a comment to the PR
@@ -48,11 +49,7 @@ export async function handlePRs() {
     issue_number: pull_request.number,
     owner: context.repo.owner,
     repo: context.repo.repo,
-    body: template("pr_status_changed", {
-      id: task.id,
-      url: task.url,
-      status: newStatus,
-    }),
+    body: template("pr_status_changed", task),
   })
   core.debug(`Response while commenting on PR: ${JSON.stringify(res.data)}`)
 }

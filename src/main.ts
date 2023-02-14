@@ -30,6 +30,7 @@ async function run(): Promise<void> {
         console.log("Unhandled issue action")
       }
     } else if (eventName === "pull_request") {
+      console.log("Handling PR event")
       handlePRs()
     } else {
       console.log("Unhandled event")

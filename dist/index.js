@@ -502,6 +502,7 @@ function run() {
                 }
             }
             else if (eventName === "pull_request") {
+                console.log("Handling PR event");
                 (0, pulls_1.handlePRs)();
             }
             else {
@@ -592,6 +593,7 @@ function handlePRs() {
         // update the task status
         console.log(`Updating task status to: ${newStatus}`);
         const task = yield (0, clickup_1.updateTaskStatus)(taskID, newStatus);
+        task.status.color = task.status.color.replace("#", ""); // remove the # from the color, for templating
         core.debug(`Response while updating task: ${JSON.stringify(task)}`);
         // add a comment to the PR
         console.log("Adding comment to PR");
@@ -599,11 +601,7 @@ function handlePRs() {
             issue_number: pull_request.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: (0, template_1.template)("pr_status_changed", {
-                id: task.id,
-                url: task.url,
-                status: newStatus,
-            }),
+            body: (0, template_1.template)("pr_status_changed", task),
         });
         core.debug(`Response while commenting on PR: ${JSON.stringify(res.data)}`);
     });
@@ -654,7 +652,7 @@ Our team will get back to you as soon as possible.
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
 `,
     pr_status_changed: `
-Updated task status [CU-{{id}}]({{url}}) to **{{status}}**.
+Updated task status [CU-{{id}}]({{url}}) to: ![{{status.status}}](https://img.shields.io/badge/-{{status.status}}-{{status.color}}).
 `,
 };
 function template(template_name, data) {
