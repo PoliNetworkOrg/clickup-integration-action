@@ -488,10 +488,20 @@ function run() {
                     console.log("Handling issue creation");
                     yield (0, issues_1.handleIssueCreation)();
                 }
+                else if (payload.action === "closed") {
+                    console.log("Handling issue closing");
+                    yield (0, issues_1.handleIssueClosed)();
+                }
                 else if (payload.action === "labeled") {
                     console.log("Handling label addition");
                     yield (0, labels_1.handleLabeled)();
                 }
+                else {
+                    console.log("Unhandled issue action");
+                }
+            }
+            else {
+                console.log("Unhandled event");
             }
         }
         catch (error) {

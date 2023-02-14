@@ -1,7 +1,7 @@
 import * as core from "@actions/core"
 import * as github from "@actions/github"
 
-import { handleIssueCreation } from "./issues"
+import { handleIssueClosed, handleIssueCreation } from "./issues"
 import { handleLabeled } from "./labels"
 
 async function run(): Promise<void> {
@@ -19,10 +19,17 @@ async function run(): Promise<void> {
       if (payload.action === "opened") {
         console.log("Handling issue creation")
         await handleIssueCreation()
+      } else if (payload.action === "closed") {
+        console.log("Handling issue closing")
+        await handleIssueClosed()
       } else if (payload.action === "labeled") {
         console.log("Handling label addition")
         await handleLabeled()
+      } else {
+        console.log("Unhandled issue action")
       }
+    } else {
+      console.log("Unhandled event")
     }
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
