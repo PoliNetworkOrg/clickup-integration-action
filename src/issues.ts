@@ -60,7 +60,7 @@ export async function handleIssueClosed() {
   if (taskID) {
     // close the task
     console.log("Closing task")
-    await updateTaskStatus(taskID, "done") // TODO: make status configurable
+    await updateTaskStatus(taskID, "completed") // TODO: make status configurable
   } else {
     console.log("An issue was closed, but no task was linked to it.")
     return

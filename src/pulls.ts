@@ -42,7 +42,7 @@ export async function handlePRs() {
     payload.action === "opened" ||
     payload.action === "reopened" ||
     payload.action === "ready_for_review"
-  const newStatus = OPENED ? "in review" : "done" // TODO: make this configurable
+  const newStatus = OPENED ? "in review" : "completed" // TODO: make this configurable
 
   // update the task status
   console.log(`Updating task status to: ${newStatus}`)

@@ -262,7 +262,7 @@ function handleIssueClosed() {
         if (taskID) {
             // close the task
             console.log("Closing task");
-            yield (0, clickup_1.updateTaskStatus)(taskID, "done"); // TODO: make status configurable
+            yield (0, clickup_1.updateTaskStatus)(taskID, "completed"); // TODO: make status configurable
         }
         else {
             console.log("An issue was closed, but no task was linked to it.");
@@ -596,7 +596,7 @@ function handlePRs() {
         const OPENED = payload.action === "opened" ||
             payload.action === "reopened" ||
             payload.action === "ready_for_review";
-        const newStatus = OPENED ? "in review" : "done"; // TODO: make this configurable
+        const newStatus = OPENED ? "in review" : "completed"; // TODO: make this configurable
         // update the task status
         console.log(`Updating task status to: ${newStatus}`);
         const task = yield (0, clickup_1.updateTaskStatus)(taskID, newStatus);
