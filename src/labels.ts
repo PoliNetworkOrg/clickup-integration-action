@@ -7,6 +7,7 @@ import {
   linkIssueInTaskComment,
 } from "./clickup"
 import { template } from "./template"
+import { getTaskIDFromComments } from "./utils"
 
 const problemTagNames = ["type: bug", "type: chore", "type: security"]
 const featureTagNames = ["type: suggestion"]
@@ -115,13 +116,7 @@ export async function handleLabeled() {
   })
 
   // extract the task id from the comment
-  const taskID = comments
-    .map(comment => comment.body)
-    .filter(b => b !== undefined)
-    .map(b => b?.match(/CU-([a-z0-9]+)/i))
-    .filter(m => m)
-    .map(m => m?.[1])
-    .filter(id => id)[0]
+  const taskID = getTaskIDFromComments(comments)
 
   const taskExists = taskID !== undefined
   const labelIsType = isTypeLabel(label.name)

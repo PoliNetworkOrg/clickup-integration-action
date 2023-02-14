@@ -133,7 +133,7 @@ export async function linkIssueInTaskComment(
     )
 
     if (!response.ok) {
-      console.log(`Failed to create comment: ${response.status}`)
+      console.log(`Failed to create comment on clickup: ${response.status}`)
       core.debug(`Response: ${response.status} ${response.statusText}`)
       core.debug(`Response body: ${await response.text()}\n`)
       return
@@ -143,7 +143,7 @@ export async function linkIssueInTaskComment(
     core.debug(`Response body: ${JSON.stringify(data)}\n`)
     return data as ClickUp.Comment
   } catch (e) {
-    console.log(`Failed to create comment: ${e}`)
+    console.log(`Failed to create comment on clickup, caught error: ${e}`)
   }
 }
 
@@ -198,4 +198,27 @@ export async function createFeatureRequest(
 ) {
   const featureListId = core.getInput("feature_list_id")
   return await createTask(featureListId, name, body, tags)
+}
+
+export async function updateTaskStatus(taskID: string, status: string) {
+  const clickupToken = core.getInput("clickup_api_key")
+  console.log(`Updating task ${taskID} status to ${status}`)
+  const response = await fetch(
+    `https://api.clickup.com/api/v2/task/${taskID}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: clickupToken,
+      },
+      body: JSON.stringify({
+        status,
+      }),
+    }
+  )
+
+  core.debug(`Response: ${response.status} ${response.statusText}`)
+  const data = await response.json()
+  core.debug(`Response body: ${JSON.stringify(data)}\n`)
+  return data as ClickUp.Task
 }

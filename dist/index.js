@@ -42,7 +42,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createFeatureRequest = exports.createProblem = exports.linkIssueInTaskComment = exports.addTag = void 0;
+exports.updateTaskStatus = exports.createFeatureRequest = exports.createProblem = exports.linkIssueInTaskComment = exports.addTag = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const node_fetch_1 = __importDefault(__nccwpck_require__(6882));
 function addTag(task_id, tag_name) {
@@ -89,7 +89,7 @@ function linkIssueInTaskComment(task_id, issue_url) {
                 }),
             });
             if (!response.ok) {
-                console.log(`Failed to create comment: ${response.status}`);
+                console.log(`Failed to create comment on clickup: ${response.status}`);
                 core.debug(`Response: ${response.status} ${response.statusText}`);
                 core.debug(`Response body: ${yield response.text()}\n`);
                 return;
@@ -99,7 +99,7 @@ function linkIssueInTaskComment(task_id, issue_url) {
             return data;
         }
         catch (e) {
-            console.log(`Failed to create comment: ${e}`);
+            console.log(`Failed to create comment on clickup, caught error: ${e}`);
         }
     });
 }
@@ -143,6 +143,27 @@ function createFeatureRequest(name, body, tags) {
     });
 }
 exports.createFeatureRequest = createFeatureRequest;
+function updateTaskStatus(taskID, status) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const clickupToken = core.getInput("clickup_api_key");
+        console.log(`Updating task ${taskID} status to ${status}`);
+        const response = yield (0, node_fetch_1.default)(`https://api.clickup.com/api/v2/task/${taskID}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: clickupToken,
+            },
+            body: JSON.stringify({
+                status,
+            }),
+        });
+        core.debug(`Response: ${response.status} ${response.statusText}`);
+        const data = yield response.json();
+        core.debug(`Response body: ${JSON.stringify(data)}\n`);
+        return data;
+    });
+}
+exports.updateTaskStatus = updateTaskStatus;
 
 
 /***/ }),
@@ -185,11 +206,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.handleIssueCreation = void 0;
+exports.handleIssueClosed = exports.handleIssueCreation = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const clickup_1 = __nccwpck_require__(1305);
 const labels_1 = __nccwpck_require__(3579);
 const template_1 = __nccwpck_require__(5032);
+const utils_1 = __nccwpck_require__(918);
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
 function handleIssueCreation() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -220,6 +243,33 @@ function handleIssueCreation() {
     });
 }
 exports.handleIssueCreation = handleIssueCreation;
+function handleIssueClosed() {
+    return __awaiter(this, void 0, void 0, function* () {
+        // check in previous comments if the issue has a linked task
+        // if it does, close the task
+        const issue = github.context.payload.issue;
+        if (!issue) {
+            core.setFailed("No issue found");
+            return;
+        }
+        const { data: comments } = yield ocktokit.issues.listComments({
+            issue_number: issue.number,
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+        });
+        const taskID = (0, utils_1.getTaskIDFromComments)(comments);
+        if (taskID) {
+            // close the task
+            console.log("Closing task");
+            yield (0, clickup_1.updateTaskStatus)(taskID, "done"); // TODO: make status configurable
+        }
+        else {
+            console.log("An issue was closed, but no task was linked to it.");
+            return;
+        }
+    });
+}
+exports.handleIssueClosed = handleIssueClosed;
 
 
 /***/ }),
@@ -267,6 +317,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const clickup_1 = __nccwpck_require__(1305);
 const template_1 = __nccwpck_require__(5032);
+const utils_1 = __nccwpck_require__(918);
 const problemTagNames = ["type: bug", "type: chore", "type: security"];
 const featureTagNames = ["type: suggestion"];
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
@@ -345,13 +396,7 @@ function handleLabeled() {
             repo: github.context.repo.repo,
         });
         // extract the task id from the comment
-        const taskID = comments
-            .map(comment => comment.body)
-            .filter(b => b !== undefined)
-            .map(b => b === null || b === void 0 ? void 0 : b.match(/CU-([a-z0-9]+)/i))
-            .filter(m => m)
-            .map(m => m === null || m === void 0 ? void 0 : m[1])
-            .filter(id => id)[0];
+        const taskID = (0, utils_1.getTaskIDFromComments)(comments);
         const taskExists = taskID !== undefined;
         const labelIsType = isTypeLabel(label.name);
         const labelIsSyncable = isSyncableLabel(label.name);
@@ -505,6 +550,28 @@ function template(template_name, data) {
     return (0, mustache_1.render)(templates[template_name], data);
 }
 exports.template = template;
+
+
+/***/ }),
+
+/***/ 918:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getTaskIDFromComments = void 0;
+function getTaskIDFromComments(comments // shitty ass type def bc of the way the octokit lib is written
+) {
+    return comments
+        .map(comment => comment.body)
+        .filter(b => b !== undefined)
+        .map(b => b === null || b === void 0 ? void 0 : b.match(/CU-([a-z0-9]+)/i))
+        .filter(m => m)
+        .map(m => m === null || m === void 0 ? void 0 : m[1])
+        .filter(id => id)[0];
+}
+exports.getTaskIDFromComments = getTaskIDFromComments;
 
 
 /***/ }),
