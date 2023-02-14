@@ -245,6 +245,7 @@ function handleIssueCreation() {
 exports.handleIssueCreation = handleIssueCreation;
 function handleIssueClosed() {
     return __awaiter(this, void 0, void 0, function* () {
+        // TODO: do not change the status if the issue was closed by a PR
         // check in previous comments if the issue has a linked task
         // if it does, close the task
         const issue = github.context.payload.issue;
@@ -595,7 +596,7 @@ function handlePRs() {
         const OPENED = payload.action === "opened" ||
             payload.action === "reopened" ||
             payload.action === "ready_for_review";
-        const newStatus = OPENED ? "in review" : "completed"; // TODO: make this configurable
+        const newStatus = OPENED ? "in review" : "done"; // TODO: make this configurable
         // update the task status
         console.log(`Updating task status to: ${newStatus}`);
         const task = yield (0, clickup_1.updateTaskStatus)(taskID, newStatus);

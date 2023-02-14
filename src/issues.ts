@@ -40,6 +40,7 @@ export async function handleIssueCreation() {
 }
 
 export async function handleIssueClosed() {
+  // TODO: do not change the status if the issue was closed by a PR
   // check in previous comments if the issue has a linked task
   // if it does, close the task
   const issue = github.context.payload.issue
