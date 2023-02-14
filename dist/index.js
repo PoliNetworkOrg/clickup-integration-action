@@ -573,6 +573,11 @@ function handlePRs() {
             core.setFailed("No pull request found");
             return;
         }
+        // check if pr is draft
+        if (pull_request.draft) {
+            console.log("PR is a draft, ignoring...");
+            return;
+        }
         const branchName = pull_request.head.ref;
         console.log(`Branch name: ${branchName}`);
         if (typeof branchName !== "string") {
@@ -652,7 +657,7 @@ Our team will get back to you as soon as possible.
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
 `,
     pr_status_changed: `
-Updated task status [CU-{{id}}]({{url}}) to: ![{{status.status}}](https://img.shields.io/badge/-{{status.status}}-{{status.color}}).
+Updated task status [CU-{{id}}]({{url}}) to: ![{{status.color}}](https://placehold.co/15x15/{{status.color}}/{{status.color}}.png) **{{status.status}}**.
 `,
 };
 function template(template_name, data) {

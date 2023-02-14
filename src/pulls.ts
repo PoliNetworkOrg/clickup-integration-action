@@ -15,6 +15,12 @@ export async function handlePRs() {
     return
   }
 
+  // check if pr is draft
+  if (pull_request.draft) {
+    console.log("PR is a draft, ignoring...")
+    return
+  }
+
   const branchName: string = pull_request.head.ref
   console.log(`Branch name: ${branchName}`)
   if (typeof branchName !== "string") {
