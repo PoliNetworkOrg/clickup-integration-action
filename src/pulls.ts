@@ -6,6 +6,7 @@ import { template } from "./template"
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest
 
 export async function handlePRs() {
+  // TODO: right now if a PR is opened and then reverted to draft, the status will be updated to "in review"
   const { context } = github
   const { payload } = context
 

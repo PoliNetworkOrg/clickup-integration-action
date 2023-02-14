@@ -566,6 +566,7 @@ const template_1 = __nccwpck_require__(5032);
 const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
 function handlePRs() {
     return __awaiter(this, void 0, void 0, function* () {
+        // TODO: right now if a PR is opened and then reverted to draft, the status will be updated to "in review"
         const { context } = github;
         const { payload } = context;
         const { pull_request } = payload;
