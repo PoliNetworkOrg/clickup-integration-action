@@ -598,6 +598,7 @@ function handlePRs() {
         // update the task status
         console.log(`Updating task status to: ${newStatus}`);
         const task = yield (0, clickup_1.updateTaskStatus)(taskID, newStatus);
+        task.status.status = encodeURI(task.status.status); // encode the status, for templating
         task.status.color = task.status.color.replace("#", ""); // remove the # from the color, for templating
         core.debug(`Response while updating task: ${JSON.stringify(task)}`);
         // add a comment to the PR
@@ -657,7 +658,7 @@ Our team will get back to you as soon as possible.
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
 `,
     pr_status_changed: `
-Updated task status [CU-{{id}}]({{url}}) to: ![{{status.color}}](https://placehold.co/15x15/{{status.color}}/{{status.color}}.png) **{{status.status}}**.
+Updated task status [CU-{{id}}]({{url}}) to: ![{{status.status}}](https://img.shields.io/badge/-{{status.status}}-{{status.color}}).
 `,
 };
 function template(template_name, data) {
