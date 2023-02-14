@@ -474,6 +474,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const issues_1 = __nccwpck_require__(6962);
 const labels_1 = __nccwpck_require__(3579);
+const pulls_1 = __nccwpck_require__(1316);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -500,6 +501,9 @@ function run() {
                     console.log("Unhandled issue action");
                 }
             }
+            else if (eventName === "pull_request") {
+                (0, pulls_1.handlePRs)();
+            }
             else {
                 console.log("Unhandled event");
             }
@@ -511,6 +515,100 @@ function run() {
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 1316:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.handlePRs = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const clickup_1 = __nccwpck_require__(1305);
+const template_1 = __nccwpck_require__(5032);
+const ocktokit = github.getOctokit(core.getInput("github_token")).rest;
+function handlePRs() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { context } = github;
+        const { payload } = context;
+        const { pull_request } = payload;
+        if (!pull_request) {
+            core.setFailed("No pull request found");
+            return;
+        }
+        const branchName = pull_request.head.ref;
+        console.log(`Branch name: ${branchName}`);
+        if (typeof branchName !== "string") {
+            core.setFailed("No branch name found (?)");
+            return;
+        }
+        const matches = branchName.match(/feature\/CU-([a-z0-9]+)/i);
+        const taskID = matches === null || matches === void 0 ? void 0 : matches[1];
+        if (!matches || !taskID) {
+            console.log("This branch is not a feature branch!");
+            return;
+        }
+        console.log(`Handling PR event for Task ID: ${taskID}`);
+        const OPENED = payload.action === "opened" ||
+            payload.action === "reopened" ||
+            payload.action === "ready_for_review";
+        const newStatus = OPENED ? "in review" : "completed"; // TODO: make this configurable
+        // update the task status
+        console.log(`Updating task status to: ${newStatus}`);
+        const task = yield (0, clickup_1.updateTaskStatus)(taskID, newStatus);
+        core.debug(`Response while updating task: ${JSON.stringify(task)}`);
+        // add a comment to the PR
+        console.log("Adding comment to PR");
+        const res = yield ocktokit.issues.createComment({
+            issue_number: pull_request.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: (0, template_1.template)("pr_status_changed", {
+                id: task.id,
+                url: task.url,
+                status: newStatus,
+            }),
+        });
+        core.debug(`Response while commenting on PR: ${JSON.stringify(res.data)}`);
+    });
+}
+exports.handlePRs = handlePRs;
 
 
 /***/ }),
@@ -554,6 +652,9 @@ Our team will get back to you as soon as possible.
 ---
 
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
+`,
+    pr_status_changed: `
+Updated task status [CU-{{id}}]({{url}}) to **{{status}}**.
 `,
 };
 function template(template_name, data) {

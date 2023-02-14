@@ -3,6 +3,7 @@ import * as github from "@actions/github"
 
 import { handleIssueClosed, handleIssueCreation } from "./issues"
 import { handleLabeled } from "./labels"
+import { handlePRs } from "./pulls"
 
 async function run(): Promise<void> {
   try {
@@ -28,6 +29,8 @@ async function run(): Promise<void> {
       } else {
         console.log("Unhandled issue action")
       }
+    } else if (eventName === "pull_request") {
+      handlePRs()
     } else {
       console.log("Unhandled event")
     }

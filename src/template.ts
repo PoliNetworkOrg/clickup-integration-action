@@ -32,6 +32,9 @@ Our team will get back to you as soon as possible.
 
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
 `,
+  pr_status_changed: `
+Updated task status [CU-{{id}}]({{url}}) to **{{status}}**.
+`,
 } as const
 
 export function template(template_name: keyof typeof templates, data?: any) {
