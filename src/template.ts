@@ -33,7 +33,7 @@ Our team will get back to you as soon as possible.
 Created a ClickUp task linked to this issue: [CU-{{id}}]({{url}})
 `,
   pr_status_changed: `
-Updated task status [CU-{{id}}]({{url}}) to: **{{status.status}}** <img align="right" src="https://img.shields.io/badge/-{{status.status}}-{{status.color}}" />
+Updated task status [CU-{{id}}]({{url}}) to: **{{status.status}}** <img align="right" src="https://img.shields.io/badge/-{{status.urlencoded}}-{{status.color}}" />
 `,
 } as const
 

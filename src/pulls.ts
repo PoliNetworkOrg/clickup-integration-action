@@ -47,7 +47,7 @@ export async function handlePRs() {
   // update the task status
   console.log(`Updating task status to: ${newStatus}`)
   const task = await updateTaskStatus(taskID, newStatus)
-  task.status.status = encodeURI(task.status.status) // encode the status, for templating
+  task.status.urlencoded = encodeURI(task.status.status) // encode the status, for templating
   task.status.color = task.status.color.replace("#", "") // remove the # from the color, for templating
   core.debug(`Response while updating task: ${JSON.stringify(task)}`)
 

@@ -3,6 +3,7 @@ import fetch from "node-fetch"
 
 export declare module ClickUp {
   export interface Status {
+    urlencoded?: string
     status: string
     color: string
     orderindex: number
